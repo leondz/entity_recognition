@@ -1,37 +1,29 @@
 #!/usr/bin/env python3
 # params:
 # 1. <conll training data path>
-# 1. <brown clusters path>
+# 2. <brown clusters path>
 
 print('init')
 
-from itertools import chain
+import er
 import nltk
 import pycrfsuite
-import sklearn
-from sklearn.preprocessing import LabelBinarizer
 import sys
 import time
 
 # import feature extraction
 from base_extractors import word2features, featurise
 
+infile = sys.argv[1]
+clusterfile = sys.argv[2]
+
 print('reading in brown clusters')
-brown_cluster = {}
-for line in open(sys.argv[2], 'r'):
-	line = line.strip()
-	if not line:
-		continue
-	path,token = line.split()[0:2]
-	brown_cluster[token] = path
+brown_cluster = er.load_brown_clusters(clusterfile)
 
+print('reading source data')
+y_train, X_train = er.load_conll_file(infile)
 
-train_sents = list(nltk.corpus.conll2002.iob_sents('esp.train'))
-
-y_train = [[seq[-1] for seq in sent] for sent in train_sents]
-X_train = [[seq[0] for seq in sent] for sent in train_sents]
-
-trainer =  pycrfsuite.Trainer(verbose=False)
+trainer = pycrfsuite.Trainer(verbose=False)
 
 print('building feature representations')
 
@@ -52,14 +44,15 @@ trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
     'c2': 1e-3,  # coefficient for L2 penalty
     'feature.minfreq': 2,
-
-    # include transitions that are possible, but not observed
-    'feature.possible_transitions': True,
-    # include states that are possible, but not observed
-    'feature.possible_states': True
+    'max_iterations': 50,  # stop earlier
+    'feature.possible_transitions': True,	# include transitions that are possible, but not observed
+    'feature.possible_states': True			# include states that are possible, but not observed
 })
 
 
 print(trainer.get_params())
 
-trainer.train(sys.argv[1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model')
+outfile = infile.split('/')[-1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model'
+trainer.train(outfile)
+
+print('model written to', outfile)

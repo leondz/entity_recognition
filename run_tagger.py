@@ -1,65 +1,54 @@
 #!/usr/bin/env python3
 # params:
 # 1. <conll training data path>
-# 1. <brown clusters path>
+# 2. <brown clusters path>
+# 3. <model file path>
 
 print('init')
 
-from itertools import chain
+from collections import Counter
+import er
 import nltk
 import pycrfsuite
-import sklearn
-from sklearn.preprocessing import LabelBinarizer
 import sys
-import time
 
 # import feature extraction
 from base_extractors import word2features, featurise
 
+infile = sys.argv[1]
+clusterfile = sys.argv[2]
+modelfile = sys.argv[3]
+
+
 print('reading in brown clusters')
-brown_cluster = {}
-for line in open(sys.argv[2], 'r'):
-	line = line.strip()
-	if not line:
-		continue
-	path,token = line.split()[0:2]
-	brown_cluster[token] = path
+brown_cluster = er.load_brown_clusters(clusterfile)
 
+y, X = er.load_conll_file(infile)
 
-test_sents = list(nltk.corpus.conll2002.iob_sents('esp.test'))
-
-y_test = [[seq[-1] for seq in sent] for sent in test_sents]
-X_test = [[seq[0] for seq in sent] for sent in test_sents]
-
-trainer = pycrfsuite.Trainer(verbose=False)
+tagger = pycrfsuite.Tagger()
+tagger.open(modelfile)
 
 print('building feature representations')
 
-i = 0
-for xseq,yseq in zip(X_train, y_train):
-	xrepr = featurise(xseq, brown_cluster)
-	trainer.append(xrepr, yseq)
+#for xseq,yseq in zip(X, y):
+#	xrepr = featurise(xseq, brown_cluster)
+#	print("Predicted:", ' '.join(tagger.tag(featurise(xseq))))
+#	print("Correct:  ", ' '.join(yseq))
 
-	i += 1
-	if not i % 100:
-		print('.', end='')
-		if not i % 1000:
-			print(i, end='')
-		sys.stdout.flush()
-print(i)
+y_hat = [tagger.tag(featurise(xseq, brown_cluster)) for xseq in X]
 
-trainer.set_params({
-    'c1': 1.0,   # coefficient for L1 penalty
-    'c2': 1e-3,  # coefficient for L2 penalty
-    'feature.minfreq': 2,
+info = tagger.info()
 
-    # include transitions that are possible, but not observed
-    'feature.possible_transitions': True,
-    # include states that are possible, but not observed
-    'feature.possible_states': True
-})
+print("\nTop likely transitions:")
+er.print_transitions(Counter(info.transitions).most_common(10))
 
+print("\nTop unlikely transitions:")
+er.print_transitions(Counter(info.transitions).most_common()[-10:])
 
-print(trainer.get_params())
+print("\nTop positive:")
+er.print_state_features(Counter(info.state_features).most_common(10))
 
-trainer.train(sys.argv[1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model')
+print("\nTop negative:")
+er.print_state_features(Counter(info.state_features).most_common()[-10:])	
+
+print("\n", er.bio_classification_report(y, y_hat))
