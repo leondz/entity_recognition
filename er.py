@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from itertools import chain
+import json
+import nltk
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import LabelBinarizer
 
@@ -39,6 +41,21 @@ def load_conll_file(conll_file_path):
 
 	return (y, X)
 
+def load_json_file(json_file_path):
+	X = []
+	y = []
+	for line in open(json_file_path, 'r'):
+		if line.strip():
+			y.append([])
+			try:
+				entry = json.loads(line)
+				X_seq = nltk.word_tokenize(entry['text'])
+				X.append(X_seq)
+			except ValueError:
+				X.append([])
+				continue
+	return (y, X)
+
 def bio_classification_report(y_true, y_pred):
     """
     Classification report for a list of BIO-encoded sequences.
@@ -70,3 +87,32 @@ def print_transitions(trans_features):
 def print_state_features(state_features):
     for (attr, label), weight in state_features:
         print("%-6s \t%s \t%0.6f" % (label, attr, weight)) 	
+
+# extract entities prefixed in BIO scheme
+def chunk_tokens(tokens, labels):
+	if len(tokens) != len(labels):
+		raise Exception('different counts of tokens and labels')
+
+	entities = []
+	entity_tokens = []
+	prev_state = ''
+	for i in range(len(tokens)):
+		token = tokens[i]
+		state = labels[i][0]
+
+		if state == 'I':
+			entity_tokens.append(token)
+
+		if state == 'B': 
+			if entity_tokens:
+				entities.append(' '.join(entity_tokens))
+			entity_tokens = [token]
+
+		if state == 'O'	and len(entity_tokens):
+			entities.append(' '.join(entity_tokens))
+			entity_tokens = []
+
+	if len(entity_tokens):
+		entities.append(' '.join(entity_tokens))
+
+	return entities

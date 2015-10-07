@@ -4,19 +4,7 @@
 # 2. <brown clusters path>
 # 3. <model file path>
 
-print('init')
-
-from collections import Counter
-import nltk
 from optparse import OptionParser
-import pycrfsuite
-import sys
-
-# local imports
-import er
-
-# import feature extraction
-from base_extractors import word2features, featurise
 
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
@@ -29,13 +17,33 @@ parser.add_option("-p", "--performance", dest="performance", action="store_true"
                   help="give performance summary", default=False)
 parser.add_option("-o", "--output", dest="outfile",
                   help="file to write predicted labels to", default="")
+parser.add_option("-s", "--stdout", dest="stdout", action="store_true",
+                  help="write output to stdout", default=False)
 parser.add_option("-O", "--full-output", dest="full_output", action="store_true",
-                  help="write conll input rows to output file as well", default=False)
-
+                  help="write conll input rows to output file as well [not implemented]", default=False)
+parser.add_option("-j", "--json", dest="json", action="store_true",
+                  help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
 
 (options, args) = parser.parse_args()
+
 if not options.infile:
 	parser.error('please specify at least an input file')
+
+
+print('init')
+
+from collections import Counter
+import json
+import nltk
+import pycrfsuite
+import sys
+
+# local imports
+import er
+
+# import feature extraction
+from base_extractors import word2features, featurise
+
 
 if options.clusterfile:
 	print('reading in brown clusters')
@@ -43,7 +51,10 @@ if options.clusterfile:
 else:
 	brown_cluster = {}
 
-y, X = er.load_conll_file(options.infile)
+if not options.json:
+	y, X = er.load_conll_file(options.infile)
+else:
+	y, X = er.load_json_file(options.infile)
 
 tagger = pycrfsuite.Tagger()
 tagger.open(options.modelfile)
@@ -57,12 +68,37 @@ print('building feature representations')
 
 y_hat = [tagger.tag(featurise(xseq, brown_cluster)) for xseq in X]
 
+out = False
 if options.outfile:
 	f = open(options.outfile, 'w')
-	for seq in y_hat:
-		for item in seq:
-			f.write(item + "\n")
-		f.write("\n")
+	out = True
+
+if options.stdout:
+	out = True
+
+if out:
+	if not options.json:
+		for seq in y_hat:
+			for item in seq:
+				if options.outfile:
+					f.write(item + "\n")
+				if options.stdout:
+					print(item)
+			if options.outfile:
+				f.write("\n")
+			if options.stdout:
+				print()
+	else:
+		# this may require some work
+		i = 0
+		for line in open(options.infile, 'r'):
+			if line.strip():
+				entity_texts = er.chunk_tokens(X[i], y_hat[i])
+				entry = json.loads(line.strip())
+				entry['entity_texts'] = entity_texts
+				print(json.dumps(entry))
+			i += 1
+
 
 if options.performance:
 	info = tagger.info()
