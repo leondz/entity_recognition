@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from itertools import chain
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import LabelBinarizer

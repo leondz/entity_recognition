@@ -5,25 +5,43 @@
 
 print('init')
 
-import er
 import nltk
+from optparse import OptionParser
 import pycrfsuite
 import sys
 import time
 
+# local imports
+import er
+
 # import feature extraction
 from base_extractors import word2features, featurise
 
-infile = sys.argv[1]
-clusterfile = sys.argv[2]
+parser = OptionParser()
+parser.add_option("-f", "--file", dest="infile",
+                  help="read conll data from this file")
+parser.add_option("-c", "--clusters", dest="clusterfile",
+                  help="path to brown clusters file")
+parser.add_option("-i", "--max-iter", dest="max_iterations",
+                  help="number of training iterations", default=50)
+parser.add_option("-m", "--min-freq", dest="min_freq",
+                  help="minimum number of feature occurrences for inclusion", default=2)
+parser.add_option("-v", "--verbose-training", dest="trainer_verbose", action="store_true",
+                  help="minimum number of feature occurrences for inclusion", default=False)
+(options, args) = parser.parse_args()
+if not options.infile:
+	parser.error('please specify at least an input file')
 
-print('reading in brown clusters')
-brown_cluster = er.load_brown_clusters(clusterfile)
+if options.clusterfile:
+	print('reading in brown clusters')
+	brown_cluster = er.load_brown_clusters(options.clusterfile)
+else:
+	brown_cluster = {}
 
 print('reading source data')
-y_train, X_train = er.load_conll_file(infile)
+y_train, X_train = er.load_conll_file(options.infile)
 
-trainer = pycrfsuite.Trainer(verbose=False)
+trainer = pycrfsuite.Trainer(verbose=options.trainer_verbose)
 
 print('building feature representations')
 
@@ -43,8 +61,8 @@ print(i)
 trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
     'c2': 1e-3,  # coefficient for L2 penalty
-    'feature.minfreq': 2,
-    'max_iterations': 50,  # stop earlier
+    'feature.minfreq': options.min_freq,
+    'max_iterations': options.max_iterations,  # stop earlier
     'feature.possible_transitions': True,	# include transitions that are possible, but not observed
     'feature.possible_states': True			# include states that are possible, but not observed
 })
@@ -52,7 +70,7 @@ trainer.set_params({
 
 print(trainer.get_params())
 
-outfile = infile.split('/')[-1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model'
+outfile = options.infile.split('/')[-1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model'
 trainer.train(outfile)
 
 print('model written to', outfile)
