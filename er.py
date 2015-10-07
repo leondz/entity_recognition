@@ -41,7 +41,7 @@ def load_conll_file(conll_file_path):
 
 	return (y, X)
 
-def load_json_file(json_file_path):
+def load_json_file(json_file_path, text_field='text'):
 	X = []
 	y = []
 	for line in open(json_file_path, 'r'):
@@ -49,7 +49,10 @@ def load_json_file(json_file_path):
 			y.append([])
 			try:
 				entry = json.loads(line)
-				X_seq = nltk.word_tokenize(entry['text'])
+				if 'tokens' not in entry:
+					X_seq = nltk.word_tokenize(entry[text_field])
+				else:
+					X_seq = entry['tokens']
 				X.append(X_seq)
 			except ValueError:
 				X.append([])

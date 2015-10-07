@@ -27,7 +27,7 @@ parser.add_option("-i", "--max-iter", dest="max_iterations",
 parser.add_option("-m", "--min-freq", dest="min_freq",
                   help="minimum number of feature occurrences for inclusion", default=2)
 parser.add_option("-v", "--verbose-training", dest="trainer_verbose", action="store_true",
-                  help="minimum number of feature occurrences for inclusion", default=False)
+                  help="output crfsuite progress during model training", default=False)
 (options, args) = parser.parse_args()
 if not options.infile:
 	parser.error('please specify at least an input file')

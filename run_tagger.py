@@ -23,6 +23,9 @@ parser.add_option("-O", "--full-output", dest="full_output", action="store_true"
                   help="write conll input rows to output file as well [not implemented]", default=False)
 parser.add_option("-j", "--json", dest="json", action="store_true",
                   help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
+parser.add_option("-t", "--json-text", dest="json_text",
+                  help="name of body text field in JSON record", default="")
+
 
 (options, args) = parser.parse_args()
 
@@ -54,7 +57,10 @@ else:
 if not options.json:
 	y, X = er.load_conll_file(options.infile)
 else:
-	y, X = er.load_json_file(options.infile)
+	if options.json_text:
+		y, X = er.load_json_file(options.infile, options.json_text)
+	else:
+		y, X = er.load_json_file(options.infile)
 
 tagger = pycrfsuite.Tagger()
 tagger.open(options.modelfile)
