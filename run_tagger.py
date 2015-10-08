@@ -32,14 +32,13 @@ parser.add_option("-t", "--json-text", dest="json_text",
 if not options.infile:
 	parser.error('please specify at least an input file')
 
-
-print('init')
+import sys
+print('init', file=sys.stderr)
 
 from collections import Counter
 import json
 import nltk
 import pycrfsuite
-import sys
 
 # local imports
 import er
@@ -49,7 +48,7 @@ from base_extractors import word2features, featurise
 
 
 if options.clusterfile:
-	print('reading in brown clusters')
+	print('reading in brown clusters', file=sys.stderr)
 	brown_cluster = er.load_brown_clusters(options.clusterfile)
 else:
 	brown_cluster = {}
@@ -65,7 +64,7 @@ else:
 tagger = pycrfsuite.Tagger()
 tagger.open(options.modelfile)
 
-print('building feature representations')
+print('building feature representations', file=sys.stderr)
 
 #for xseq,yseq in zip(X, y):
 #	xrepr = featurise(xseq, brown_cluster)
@@ -101,7 +100,7 @@ if out:
 			if line.strip():
 				entity_texts = er.chunk_tokens(X[i], y_hat[i])
 				entry = json.loads(line.strip())
-				entry['entity_texts'] = entity_texts
+				entry['entity_texts'] = list(set(entity_texts))
 				print(json.dumps(entry))
 			i += 1
 

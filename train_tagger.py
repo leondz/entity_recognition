@@ -20,11 +20,11 @@ parser.add_option("-v", "--verbose-training", dest="trainer_verbose", action="st
 if not options.infile:
 	parser.error('please specify at least an input file')
 
-print('init')
+import sys
+print('init', file=sys.stderr)
 
 import nltk
 import pycrfsuite
-import sys
 import time
 
 # local imports
@@ -34,17 +34,17 @@ import er
 from base_extractors import word2features, featurise
 
 if options.clusterfile:
-	print('reading in brown clusters')
+	print('reading in brown clusters', file=sys.stderr)
 	brown_cluster = er.load_brown_clusters(options.clusterfile)
 else:
 	brown_cluster = {}
 
-print('reading source data')
+print('reading source data', file=sys.stderr)
 y_train, X_train = er.load_conll_file(options.infile)
 
 trainer = pycrfsuite.Trainer(verbose=options.trainer_verbose)
 
-print('building feature representations')
+print('building feature representations', file=sys.stderr)
 
 i = 0
 for xseq,yseq in zip(X_train, y_train):
@@ -53,11 +53,11 @@ for xseq,yseq in zip(X_train, y_train):
 
 	i += 1
 	if not i % 100:
-		print('.', end='')
+		print('.', end='', file=sys.stderr)
 		if not i % 1000:
-			print(i, end='')
-		sys.stdout.flush()
-print(i)
+			print(i, end='', file=sys.stderr)
+		sys.stderr.flush()
+print(i, file=sys.stderr)
 
 trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
@@ -65,13 +65,16 @@ trainer.set_params({
     'feature.minfreq': options.min_freq,
     'max_iterations': options.max_iterations,  # stop earlier
     'feature.possible_transitions': True,	# include transitions that are possible, but not observed
-    'feature.possible_states': True			# include states that are possible, but not observed
+    'feature.possible_states': True,			# include states that are possible, but not observed
+#    'source_clusters': options.clusterfile,
+#    'source_input': options.infile,
+#    'source_built': time.strftime('%c'),
 })
 
 
-print(trainer.get_params())
+print(trainer.get_params(), file=sys.stderr)
 
 outfile = options.infile.split('/')[-1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model'
 trainer.train(outfile)
 
-print('model written to', outfile)
+print('model written to ' + outfile, file=sys.stderr)
