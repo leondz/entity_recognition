@@ -37,6 +37,10 @@ Then go for two cups of tea / one brief fika, after troubleshooting errors. If y
     $ sudo pip3 install -U numpy
     $ sudo pip3 install -U scipy
 
+## Hints and tips
+
+If you use Brown clusters (and we recommend them!), this system expects cluster paths in binary branch format - à la `wcluster` - as opposed to base 10 paths, like from `JCLUSTER`. If you're not sure how many Brown clusters to use, check out our 3D interactive [guide to tuning Brown clustering](http://www.derczynski.com/sheffield/brown-tuning/).
+
 ## Reference
 If you use this work, please cite our paper:
 
