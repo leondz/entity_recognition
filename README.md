@@ -3,7 +3,7 @@
 ## Intro
 Framework for doing NER and other types of entity recognition in Python.
 
-Baseline feature extraction relies on Brown clusters and typical NER features, similar to Roth & Ratinov 2009. We use CRFsuite and try to keep things modular and simple, so you're not stuck to just NEs - parts of speech, MWEs, temporal expressions and the whole smørrebrød of entity classes are up for grabs with this framework; simply adjust training data accordingly.
+Baseline feature extraction relies on Brown clusters and typical NER features, similar to Roth & Ratinov 2009. We use CRFsuite and try to keep things modular and simple, so you're not stuck to just NEs - parts of speech, MWEs, temporal expressions and the whole smørrebrød of entity classes are up for grabs with this framework; simply adjust training data and labels to taste.
 
 ## Features
 * Pluggable feature generation
