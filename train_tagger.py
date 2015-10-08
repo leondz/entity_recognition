@@ -3,19 +3,7 @@
 # 1. <conll training data path>
 # 2. <brown clusters path>
 
-print('init')
-
-import nltk
 from optparse import OptionParser
-import pycrfsuite
-import sys
-import time
-
-# local imports
-import er
-
-# import feature extraction
-from base_extractors import word2features, featurise
 
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
@@ -31,6 +19,19 @@ parser.add_option("-v", "--verbose-training", dest="trainer_verbose", action="st
 (options, args) = parser.parse_args()
 if not options.infile:
 	parser.error('please specify at least an input file')
+
+print('init')
+
+import nltk
+import pycrfsuite
+import sys
+import time
+
+# local imports
+import er
+
+# import feature extraction
+from base_extractors import word2features, featurise
 
 if options.clusterfile:
 	print('reading in brown clusters')
