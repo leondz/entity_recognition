@@ -25,30 +25,30 @@ For example, to learn a model from the Ritter NER CoNLL data, and then apply it 
 An "entity_texts" top-level field is added, containing extracted entities. For example:
 
     {
-    	_"body": "Quick, someone photoshop Natalie Portman!",_ 
-    	"distinguished": null, 
-    	"parent_id": "t3_1bddiw", 
-    	"edited": false, 
-    	"gilded": 0, 
-    	"controversiality": 0, 
-    	"link_id": 
-    	"t3_1bddiw", 
-    	"subreddit_id": "t5_2qh0u", 
-    	"subreddit": "pics", 
-    	"ups": 1, 
-    	"score": 1, 
+    	"archived": true, 
+    	"author": "walrusboy", 
     	"author_flair_css_class": null, 
     	"author_flair_text": null, 
-    	"retrieved_on": 1431716826, 
+    	"body": "Quick, someone photoshop Natalie Portman!",
+    	"controversiality": 0, 
     	"created_utc": "1364774484", 
-    	_"entity_texts": ["Natalie Portman"],_
-    	"author": "walrusboy", 
-    	"score_hidden": false, 
-    	"archived": true, 
-    	"name": "t1_c95zmil", 
-    	"removal_reason": null, 
+    	"distinguished": null, 
+    	"downs": 0,
+    	"edited": false, 
+    	"entity_texts": ["Natalie Portman"],
+    	"gilded": 0, 
     	"id": "c95zmil", 
-    	"downs": 0
+    	"link_id": 
+    	"name": "t1_c95zmil", 
+    	"parent_id": "t3_1bddiw", 
+    	"removal_reason": null, 
+    	"retrieved_on": 1431716826, 
+    	"score": 1, 
+    	"score_hidden": false, 
+    	"subreddit": "pics", 
+    	"subreddit_id": "t5_2qh0u", 
+    	"t3_1bddiw", 
+    	"ups": 1
     }
 
 ## Dependencies
