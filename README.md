@@ -44,8 +44,9 @@ If you use Brown clusters (and we recommend them!), this system expects cluster 
 ## Reference
 If you use this work, please cite our paper:
 
-> USFD: Twitter NER with Drift Compensation and Linked Data
-> L Derczynski, I Augenstein, K Bontcheva
-> Proceedings of the ACL Workshop on Noisy User-generated Text (W-NUT)
+> Leon Derczynski, Isabelle Augenstein, Kalina Bontcheva (2015)<br />
+> USFD: Twitter NER with Drift Compensation and Linked Data<br />
+> Proceedings of the ACL Workshop on Noisy User-generated Text (W-NUT)<br />
+> [[Paper]](https://aclweb.org/anthology/W/W15/W15-4306.pdf) [[bib]](https://aclweb.org/anthology/W/W15/W15-4306.bib)
 
 Tools under active development until at least 2017 as part of the PHEME project: www.pheme.eu
