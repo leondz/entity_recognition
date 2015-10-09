@@ -17,6 +17,40 @@ Toy data in `datasets/` top-level directory.
 
 Should you like to tag data with your code, `./run_tagger.py --help` is your friend. Remember to keep the Brown clusters around!
 
+For example, to learn a model from the Ritter NER CoNLL data, and then apply it to some Reddit JSON, try this:
+
+    $ ./train_tagger.py -f datasets/ritter.ner.conll --clusters brown_paths/gha.250M-c2000.paths --output ritter.socmed.crfsuite.model
+    $ ./run_tagger.py -f datasets/RC_2013-04.1000.json -c brown_paths/gha.250M-c2000.paths --model ritter.socmed.crfsuite.model --json --json-text body --stdout 
+
+An "entity_texts" top-level field is added, containing extracted entities. For example:
+
+    {
+    	_"body": "Quick, someone photoshop Natalie Portman!",_ 
+    	"distinguished": null, 
+    	"parent_id": "t3_1bddiw", 
+    	"edited": false, 
+    	"gilded": 0, 
+    	"controversiality": 0, 
+    	"link_id": 
+    	"t3_1bddiw", 
+    	"subreddit_id": "t5_2qh0u", 
+    	"subreddit": "pics", 
+    	"ups": 1, 
+    	"score": 1, 
+    	"author_flair_css_class": null, 
+    	"author_flair_text": null, 
+    	"retrieved_on": 1431716826, 
+    	"created_utc": "1364774484", 
+    	_"entity_texts": ["Natalie Portman"],_
+    	"author": "walrusboy", 
+    	"score_hidden": false, 
+    	"archived": true, 
+    	"name": "t1_c95zmil", 
+    	"removal_reason": null, 
+    	"id": "c95zmil", 
+    	"downs": 0
+    }
+
 ## Dependencies
 At least:
 

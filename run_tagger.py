@@ -9,6 +9,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
                   help="read conll data from this file")
+parser.add_option("-x", "--extractor", dest="extractor_module",
+                  help="name of feature extractor python module", default="base_extractors")
 parser.add_option("-c", "--clusters", dest="clusterfile",
                   help="path to brown clusters file")
 parser.add_option("-m", "--model", dest="modelfile",
@@ -44,7 +46,9 @@ import pycrfsuite
 import er
 
 # import feature extraction
-from base_extractors import word2features, featurise
+extractors = __import__(options.extractor_module)
+word2features = extractors.word2features
+featurise = extractors.featurise
 
 
 if options.clusterfile:
