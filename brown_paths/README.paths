@@ -1,0 +1,13 @@
+empty
+  Dummy file containing no Brown clusters
+
+gha.250M-c2000.paths
+  Clusters from 250M words of English tweets. Derczynski, Augenstein, Bontcheva. 2015. USFD: Twitter NER with Drift Compensation and Linked Data. Proc. W-NUT workshop, ACL.
+
+rcv1.clean-c2560.paths
+  Clusters from RCV1, cleaned and pre-processed as per Liang. Note c=2560; no filtering. Compressed. Derczynski, Chester, Bøgh. 2015. Tune Your Brown Clustering, Please. Proc. RANLP
+
+
+For more, see the resources of Derczynski, Chester, Bøgh. 2015. Tune Your Brown Clustering, Please. Proc. RANLP:
+  https://s3-eu-west-1.amazonaws.com/downloads.gate.ac.uk/resources/derczynski-chester-boegh-brownpaths.tar.bz2
+  (641MiB, large high-coverage datasets for news and social media)

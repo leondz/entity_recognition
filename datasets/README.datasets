@@ -1,0 +1,11 @@
+RC_2013-04.1000.json
+  Plain text in JSON format, from the Reddit comments corpus. Credit due to Jason Baumgartner. URI https://archive.org/details/2015_reddit_comments_corpus
+
+ritter.ner.conll
+  Freebase-style NE annotated text in CoNLL format. Ritter, Clark, Etzioni. 2011. Named Entity Recognition in Tweets: An Experimental Study. Proc. EMNLP
+
+test.json
+  Dummy JSON twitter text taken from the USFD garden host archive. Derczynski, Augenstein, Bontcheva. 2015. USFD: Twitter NER with Drift Compensation and Linked Data. Proc. W-NUT workshop, ACL.
+
+wnut_2015_test.conll
+  Freebase-style NE annotated text in CoNLL format. Baldwin, de Marneffe, Han, Kim, Ritter, Xu. 2015. Shared Tasks of the 2015 Workshop on Noisy User-generated Text: Twitter Lexical Normalization and Named Entity Recognition. Proc. W-NUT workshop, ACL.
