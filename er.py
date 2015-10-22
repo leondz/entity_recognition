@@ -18,16 +18,12 @@ def load_brown_clusters(cluster_file_path):
 	return brown_cluster
 
 def load_conll_file(conll_file_path):
-	y = []
-	X = []
-
 	y_seq = []
 	X_seq = []
 	for line in open(conll_file_path,'r'):
 		line = line.strip().split()
 		if not len(line):
-			y.append(y_seq)
-			X.append(X_seq)
+			yield(y, X)
 			y_seq = []
 			X_seq = []
 			continue
@@ -36,28 +32,20 @@ def load_conll_file(conll_file_path):
 		X_seq.append(line[0])
 	
 	if y_seq and X_seq:
-		y.append([y_seq])
-		X.append([X_seq])
-
-	return (y, X)
+		yield(y_seq, X_seq)
 
 def load_json_file(json_file_path, text_field='text'):
-	X = []
-	y = []
 	for line in open(json_file_path, 'r'):
 		if line.strip():
-			y.append([])
 			try:
 				entry = json.loads(line)
 				if 'tokens' not in entry:
 					X_seq = nltk.word_tokenize(entry[text_field])
 				else:
 					X_seq = entry['tokens']
-				X.append(X_seq)
+				yield([None]*len(X_seq), X_seq, entry)
 			except ValueError:
-				X.append([])
 				continue
-	return (y, X)
 
 def bio_classification_report(y_true, y_pred):
     """
@@ -119,3 +107,4 @@ def chunk_tokens(tokens, labels):
 		entities.append(' '.join(entity_tokens))
 
 	return entities
+

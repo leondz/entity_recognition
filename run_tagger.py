@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
-                  help="read conll data from this file")
+                  help="read data to be tagged (e.g. conll, json) from this file")
 parser.add_option("-x", "--extractor", dest="extractor_module",
                   help="name of feature extractor python module", default="base_extractors")
 parser.add_option("-c", "--clusters", dest="clusterfile",
@@ -27,6 +27,8 @@ parser.add_option("-j", "--json", dest="json", action="store_true",
                   help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
 parser.add_option("-t", "--json-text", dest="json_text",
                   help="name of body text field in JSON record", default="")
+parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
+                  help="dump debugging / progress info on stderr", default=False)
 
 
 (options, args) = parser.parse_args()
@@ -57,25 +59,11 @@ if options.clusterfile:
 else:
 	brown_cluster = {}
 
-if not options.json:
-	y, X = er.load_conll_file(options.infile)
-else:
-	if options.json_text:
-		y, X = er.load_json_file(options.infile, options.json_text)
-	else:
-		y, X = er.load_json_file(options.infile)
+
+
 
 tagger = pycrfsuite.Tagger()
 tagger.open(options.modelfile)
-
-print('building feature representations', file=sys.stderr)
-
-#for xseq,yseq in zip(X, y):
-#	xrepr = featurise(xseq, brown_cluster)
-#	print("Predicted:", ' '.join(tagger.tag(featurise(xseq))))
-#	print("Correct:  ", ' '.join(yseq))
-
-y_hat = [tagger.tag(featurise(xseq, brown_cluster)) for xseq in X]
 
 out = False
 if options.outfile:
@@ -85,10 +73,27 @@ if options.outfile:
 if options.stdout:
 	out = True
 
-if out:
-	if not options.json:
-		for seq in y_hat:
-			for item in seq:
+
+
+print('doing tagging', file=sys.stderr)
+
+
+if not options.json:
+	file_generator = er.load_conll_file(options.infile)
+else:
+	if options.json_text:
+		file_generator = er.load_json_file(options.infile, options.json_text)
+	else:
+		file_generator = er.load_json_file(options.infile)
+
+ys = []
+y_hats=[]
+for y, X, entry in file_generator:
+	y_hat = tagger.tag(featurise(X, brown_cluster))
+
+	if out:
+		if not options.json:
+			for item in y_hat:
 				if options.outfile:
 					f.write(item + "\n")
 				if options.stdout:
@@ -97,16 +102,14 @@ if out:
 				f.write("\n")
 			if options.stdout:
 				print()
-	else:
-		# this may require some work
-		i = 0
-		for line in open(options.infile, 'r'):
-			if line.strip():
-				entity_texts = er.chunk_tokens(X[i], y_hat[i])
-				entry = json.loads(line.strip())
-				entry['entity_texts'] = list(set(entity_texts))
-				print(json.dumps(entry))
-			i += 1
+		else:
+			# this may require some work
+			entity_texts = er.chunk_tokens(X, y_hat)
+			entry['entity_texts'] = list(set(entity_texts))
+			print(json.dumps(entry))
+
+	ys.append(y)
+	y_hats.append(y_hat)
 
 
 if options.performance:
