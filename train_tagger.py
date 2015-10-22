@@ -7,10 +7,6 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
                   help="read data from this file (conll, json; use -j with json data)")
-parser.add_option("-j", "--json", dest="json", action="store_true",
-                  help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
-parser.add_option("-t", "--json-text", dest="json_text",
-                  help="name of body text field in JSON record", default="")
 parser.add_option("-x", "--extractor", dest="extractor_module",
                   help="name of feature extractor python module", default="base_extractors")
 parser.add_option("-o", "--output", dest="outfile",
@@ -69,13 +65,7 @@ if options.verbose:
 	print('building feature representations for examples', file=sys.stderr)
 
 
-if not options.json:
-	file_generator = er.load_conll_file(options.infile)
-else:
-	if options.json_text:
-		file_generator = er.load_json_file(options.infile, options.json_text)
-	else:
-		file_generator = er.load_json_file(options.infile)
+file_generator = er.load_conll_file(options.infile)
 
 
 i = 0
