@@ -23,7 +23,7 @@ def load_conll_file(conll_file_path):
 	for line in open(conll_file_path,'r'):
 		line = line.strip().split()
 		if not len(line):
-			yield(y, X)
+			yield(y_seq, X_seq, None)
 			y_seq = []
 			X_seq = []
 			continue

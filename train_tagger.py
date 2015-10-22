@@ -6,7 +6,11 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="infile",
-                  help="read conll data from this file")
+                  help="read data from this file (conll, json; use -j with json data)")
+parser.add_option("-j", "--json", dest="json", action="store_true",
+                  help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
+parser.add_option("-t", "--json-text", dest="json_text",
+                  help="name of body text field in JSON record", default="")
 parser.add_option("-x", "--extractor", dest="extractor_module",
                   help="name of feature extractor python module", default="base_extractors")
 parser.add_option("-o", "--output", dest="outfile",
@@ -17,15 +21,20 @@ parser.add_option("-i", "--max-iter", dest="max_iterations",
                   help="number of training iterations", default=50)
 parser.add_option("-m", "--min-freq", dest="min_freq",
                   help="minimum number of feature occurrences for inclusion", default=2)
-parser.add_option("-v", "--verbose-training", dest="trainer_verbose", action="store_true",
+parser.add_option("-V", "--verbose-training", dest="trainer_verbose", action="store_true",
                   help="output crfsuite progress during model training", default=False)
+parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
+                  help="dump progress info on stderr", default=True)
+parser.add_option("-q", "--quiet", dest="verbose", action="store_false",
+                  help="don't dump progress info on stderr", default=True)
 
 (options, args) = parser.parse_args()
 if not options.infile:
-	parser.error('please specify at least an input file')
+	parser.error('please specify at least an input file (-f)')
 
 import sys
-print('init', file=sys.stderr)
+if options.verbose:
+	print('init', file=sys.stderr)
 
 import nltk
 import pycrfsuite
@@ -35,35 +44,55 @@ import time
 import er
 
 # import feature extraction
-extractors = __import__(options.extractor_module)
-word2features = extractors.word2features
-featurise = extractors.featurise
+try:
+	extractors = __import__(options.extractor_module)
+except:
+	sys.exit('Failed loading the specified feature extractor', sys.exc_info()[0])
+
+try:
+	word2features = extractors.word2features
+	featurise = extractors.featurise
+except:
+	sys.exit("Feature extractor didn't fit API as expected")
+
 
 if options.clusterfile:
-	print('reading in brown clusters', file=sys.stderr)
+	if options.verbose:
+		print('reading in brown clusters', file=sys.stderr)
 	brown_cluster = er.load_brown_clusters(options.clusterfile)
 else:
 	brown_cluster = {}
 
-print('reading source data', file=sys.stderr)
-y_train, X_train = er.load_conll_file(options.infile)
-
 trainer = pycrfsuite.Trainer(verbose=options.trainer_verbose)
 
-print('building feature representations for examples', file=sys.stderr)
+if options.verbose:
+	print('building feature representations for examples', file=sys.stderr)
+
+
+if not options.json:
+	file_generator = er.load_conll_file(options.infile)
+else:
+	if options.json_text:
+		file_generator = er.load_json_file(options.infile, options.json_text)
+	else:
+		file_generator = er.load_json_file(options.infile)
+
 
 i = 0
-for xseq,yseq in zip(X_train, y_train):
-	xrepr = featurise(xseq, brown_cluster)
-	trainer.append(xrepr, yseq)
+for y, X, entry in file_generator:
+	xrepr = featurise(X, brown_cluster)
+	trainer.append(xrepr, y)
 
 	i += 1
-	if not i % 100:
-		print('.', end='', file=sys.stderr)
-		if not i % 1000:
-			print(i, end='', file=sys.stderr)
-		sys.stderr.flush()
-print(i, file=sys.stderr)
+	if options.verbose:
+		if not i % 100:
+			print('.', end='', file=sys.stderr)
+			if not i % 1000:
+				print(i, end='', file=sys.stderr)
+			sys.stderr.flush()
+
+if options.verbose:
+	print(i, 'example sequences seen', file=sys.stderr)
 
 trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
@@ -78,10 +107,12 @@ trainer.set_params({
 })
 
 
-print('CRF parameters:', trainer.get_params(), file=sys.stderr)
+if options.verbose:
+	print('CRF parameters:', trainer.get_params(), file=sys.stderr)
 
 if not options.outfile:
 	options.outfile = options.infile.split('/')[-1] + time.strftime('.%Y%m%d-%H%M%S') + '.crfsuite.model'
 trainer.train(options.outfile)
 
-print('model written to ' + options.outfile, file=sys.stderr)
+if options.verbose:
+	print('model written to ' + options.outfile, file=sys.stderr)

@@ -36,8 +36,12 @@ parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
 if not options.infile:
 	parser.error('please specify at least an input file')
 
+if not options.modelfile:
+	parser.error('please specify the model file to load for tagging')	
+
 import sys
-print('init', file=sys.stderr)
+if options.verbose:
+	print('init', file=sys.stderr)
 
 from collections import Counter
 import json
@@ -48,13 +52,20 @@ import pycrfsuite
 import er
 
 # import feature extraction
-extractors = __import__(options.extractor_module)
-word2features = extractors.word2features
-featurise = extractors.featurise
+try:
+	extractors = __import__(options.extractor_module)
+except:
+	sys.exit('Failed loading the specified feature extractor', sys.exc_info()[0])
 
+try:
+	word2features = extractors.word2features
+	featurise = extractors.featurise
+except:
+	sys.exit("Feature extractor didn't fit API as expected")
 
 if options.clusterfile:
-	print('reading in brown clusters', file=sys.stderr)
+	if options.verbose:
+		print('reading in brown clusters', file=sys.stderr)
 	brown_cluster = er.load_brown_clusters(options.clusterfile)
 else:
 	brown_cluster = {}
@@ -74,8 +85,8 @@ if options.stdout:
 	out = True
 
 
-
-print('doing tagging', file=sys.stderr)
+if options.verbose:
+	print('doing tagging', file=sys.stderr)
 
 
 if not options.json:
@@ -108,8 +119,9 @@ for y, X, entry in file_generator:
 			entry['entity_texts'] = list(set(entity_texts))
 			print(json.dumps(entry))
 
-	ys.append(y)
-	y_hats.append(y_hat)
+	if options.performance:
+		ys.append(y)
+		y_hats.append(y_hat)
 
 
 if options.performance:
