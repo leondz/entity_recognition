@@ -46,35 +46,17 @@ if options.verbose:
 from collections import Counter
 import json
 import nltk
-import pycrfsuite
 
 # local imports
 import er
 
-# import feature extraction
-try:
-	extractors = __import__(options.extractor_module)
-except:
-	sys.exit('Failed loading the specified feature extractor', sys.exc_info()[0])
-
-try:
-	word2features = extractors.word2features
-	featurise = extractors.featurise
-except:
-	sys.exit("Feature extractor didn't fit API as expected")
+t = er.Tagger(options.modelfile, options.extractor_module)
 
 if options.clusterfile:
 	if options.verbose:
 		print('reading in brown clusters', file=sys.stderr)
-	brown_cluster = er.load_brown_clusters(options.clusterfile)
-else:
-	brown_cluster = {}
+	t.load_clusters(options.clusterfile)
 
-
-
-
-tagger = pycrfsuite.Tagger()
-tagger.open(options.modelfile)
 
 out = False
 if options.outfile:
@@ -100,7 +82,7 @@ else:
 ys = []
 y_hats=[]
 for y, X, entry in file_generator:
-	y_hat = tagger.tag(featurise(X, brown_cluster))
+	y_hat = t.tag(X)
 
 	if out:
 		if not options.json:
@@ -125,7 +107,7 @@ for y, X, entry in file_generator:
 
 
 if options.performance:
-	info = tagger.info()
+	info = t.tagger.info()
 
 	print("\nTop likely transitions:")
 	er.print_transitions(Counter(info.transitions).most_common(10))

@@ -3,6 +3,7 @@
 from itertools import chain
 import json
 import nltk
+import pycrfsuite
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import LabelBinarizer
 
@@ -108,3 +109,31 @@ def chunk_tokens(tokens, labels):
 
 	return entities
 
+class Tagger:
+	""" for tagging, using a pre-trained model etc. """
+
+
+	def __init__(self, model_file, extractor_module):
+		self.clusters = None
+
+		# import feature extraction
+		try:
+			extractors = __import__(extractor_module)
+		except:
+			raise('ValueError', 'Failed loading the specified feature extractor: '+ str(sys.exc_info()))
+
+		try:
+			word2features = extractors.word2features
+			self.featurise = extractors.featurise
+		except:
+			raise('ValueError', "Feature extractor didn't fit API as expected")
+
+		self.tagger = pycrfsuite.Tagger()
+		self.tagger.open(model_file)
+
+
+	def load_clusters(self, clusterfile):
+		self.clusters = load_brown_clusters(clusterfile)
+
+	def tag(self, X):
+		return self.tagger.tag(self.featurise(X, self.clusters))
