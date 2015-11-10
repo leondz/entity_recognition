@@ -82,7 +82,7 @@ for y, X, entry in file_generator:
 			sys.stderr.flush()
 
 if options.verbose:
-	print(i, 'example sequences seen', file=sys.stderr)
+	print(' ', i, 'example sequences seen', file=sys.stderr)
 
 trainer.set_params({
     'c1': 1.0,   # coefficient for L1 penalty
