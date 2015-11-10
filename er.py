@@ -7,8 +7,15 @@ import pycrfsuite
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import LabelBinarizer
 
-
 def load_brown_clusters(cluster_file_path):
+	""" 
+	Takes the path to a file describing word clusters.
+	This is typically in wcluster format, or hyperbrown, but
+	can be anything - as long as the first column is the word
+	and the second column the cluster path.
+	The file should have a space or tab separator.
+	"""
+
 	brown_cluster = {}
 	for line in open(cluster_file_path, 'r'):
 		line = line.strip()
@@ -19,6 +26,10 @@ def load_brown_clusters(cluster_file_path):
 	return brown_cluster
 
 def load_conll_file(conll_file_path):
+	"""
+	First column is the word, last column is the label.
+	Assumes all non-blank lines have the same number of fields. 
+	"""
 	y_seq = []
 	X_seq = []
 	for line in open(conll_file_path,'r'):
@@ -33,9 +44,13 @@ def load_conll_file(conll_file_path):
 		X_seq.append(line[0])
 	
 	if y_seq and X_seq:
-		yield(y_seq, X_seq)
+		yield(y_seq, X_seq, None)
 
 def load_json_file(json_file_path, text_field='text'):
+	""" 
+	Assumes one-record-per-line, just like from Twitter
+	or Reddit feeds.
+	"""
 	for line in open(json_file_path, 'r'):
 		if line.strip():
 			try:
@@ -80,8 +95,10 @@ def print_state_features(state_features):
     for (attr, label), weight in state_features:
         print("%-6s \t%s \t%0.6f" % (label, attr, weight)) 	
 
-# extract entities prefixed in BIO scheme
 def chunk_tokens(tokens, labels):
+	"""
+	Extract text of unique contiguous entities prefixed in BIO scheme
+	"""
 	if len(tokens) != len(labels):
 		raise Exception('different counts of tokens and labels')
 
@@ -110,29 +127,32 @@ def chunk_tokens(tokens, labels):
 	return entities
 
 class Tagger:
-	""" for tagging, using a pre-trained model etc. """
-
+	""" 
+	For tagging, using a pre-trained model.
+	If using entity_recognition via API, start with one of these
+	"""
 
 	def __init__(self, model_file, extractor_module):
 		self.clusters = None
 
 		# import feature extraction
 		try:
-			extractors = __import__(extractor_module)
+			extractors = __import__(extractor_module, fromlist = [''])
 		except:
-			raise('ValueError', 'Failed loading the specified feature extractor: '+ str(sys.exc_info()))
+			raise ValueError('Failed loading the specified feature extractor: ' + extractor_module)
 
 		try:
 			word2features = extractors.word2features
 			self.featurise = extractors.featurise
 		except:
-			raise('ValueError', "Feature extractor didn't fit API as expected")
+			raise ValueError ("Feature extractor didn't fit API as expected")
 
 		self.tagger = pycrfsuite.Tagger()
 		self.tagger.open(model_file)
 
 
 	def load_clusters(self, clusterfile):
+		""" optional """
 		self.clusters = load_brown_clusters(clusterfile)
 
 	def tag(self, X):
