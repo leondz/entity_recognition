@@ -88,4 +88,4 @@ If you use this work, please cite our paper:
 > Proceedings of the ACL Workshop on Noisy User-generated Text (W-NUT)<br />
 > [[Paper]](https://aclweb.org/anthology/W/W15/W15-4306.pdf) [[bib]](https://aclweb.org/anthology/W/W15/W15-4306.bib)
 
-Tools under active development until at least 2017 as part of the PHEME project: www.pheme.eu
+Tools under active development until at least 2019 as part of the PHEME and COMRADES EU projects: www.pheme.eu
