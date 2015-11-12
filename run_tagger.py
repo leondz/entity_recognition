@@ -22,7 +22,7 @@ parser.add_option("-o", "--output", dest="outfile",
 parser.add_option("-s", "--stdout", dest="stdout", action="store_true",
                   help="write output to stdout", default=False)
 parser.add_option("-O", "--full-output", dest="full_output", action="store_true",
-                  help="write conll input rows to output file as well [not implemented]", default=False)
+                  help="write conll input rows to output file as well, space separated", default=False)
 parser.add_option("-j", "--json", dest="json", action="store_true",
                   help="enable JSON mode - look for a top-level 'text' or 'tokens' field and add an 'entity_texts' field", default=False)
 parser.add_option("-t", "--json-text", dest="json_text",
@@ -86,11 +86,17 @@ for y, X, entry in file_generator:
 
 	if out:
 		if not options.json:
+			
+			seq_position = 0
 			for item in y_hat:
+				if options.full_output:
+					item = " ".join([X[seq_position], y[seq_position], item])
 				if options.outfile:
 					f.write(item + "\n")
 				if options.stdout:
 					print(item)
+				seq_position += 1
+
 			if options.outfile:
 				f.write("\n")
 			if options.stdout:
