@@ -15,6 +15,7 @@ for line in open(sys.argv[1], 'r'):
 	#skip blanks
 	if not line:
 		print
+		prev_label = out_label
 		continue
 
 	token,label = line.split()
@@ -26,7 +27,7 @@ for line in open(sys.argv[1], 'r'):
 	label = label.lower()
 	if label[0] != out_label:
 		if prev_label == 'O':
-			print token + "B-" + label
+			print token + " B-" + label
 			prev_label = 'B'
 		else:
-			print token + "I-" + label
+			print token + " I-" + label
