@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import bz2
 from itertools import chain
 import json
 import nltk
@@ -16,8 +17,13 @@ def load_brown_clusters(cluster_file_path):
 	The file should have a space or tab separator.
 	"""
 
+	if cluster_file_path[-4:].lower() == '.bz2':
+		cluster_file = bz2.open(cluster_file_path, 'rt')
+	else:
+		cluster_file = open(cluster_file_path, 'rt')
+
 	brown_cluster = {}
-	for line in open(cluster_file_path, 'r'):
+	for line in cluster_file:
 		line = line.strip()
 		if not line:
 			continue
