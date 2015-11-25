@@ -139,7 +139,7 @@ class Tagger:
 	"""
 
 	def __init__(self, model_file, extractor_module):
-		self.clusters = None
+		self.clusters = {}
 
 		# import feature extraction
 		try:
