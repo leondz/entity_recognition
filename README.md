@@ -20,7 +20,7 @@ Should you like to tag data with your code, `./run_tagger.py --help` is your fri
 For example, to learn a model from the Ritter NER CoNLL data, and then apply it to some Reddit JSON, try this:
 
     $ ./train_tagger.py -f datasets/ritter.ner.conll \
-      --clusters brown_paths/gha.250M-c2000.paths --output \ 
+      --clusters brown_paths/gha.250M-c2000.paths --model \ 
       ritter.socmed.crfsuite.model
     $ ./run_tagger.py -f datasets/RC_2013-04.1000.json \ 
       -c brown_paths/gha.250M-c2000.paths \ 
