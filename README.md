@@ -69,7 +69,7 @@ At least:
 Check you're using Python 3, with `python -V` (THAT'S A BIG V). Next, try something like:
 
     $ sudo easy_install3 -U pip
-    $ sudo pip3 install numpy scipy sklearn pycrfsuite nltk
+    $ sudo pip3 install numpy scipy sklearn python-crfsuite nltk
 
 Then go for two cups of tea / one brief fika, after troubleshooting errors. If you get super stuck, sometimes it helps to try your distribution's Python 3 packages for numpy and scipy, and then upgrade them with something like:
 

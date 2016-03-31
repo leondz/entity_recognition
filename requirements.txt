@@ -1,0 +1,5 @@
+nltk==3.2
+numpy==1.10.4
+scipy==0.17.0
+python-crfsuite==0.8.4
+sklearn==0.0
