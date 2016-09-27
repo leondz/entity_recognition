@@ -12,6 +12,7 @@ setup(
 	name='entity_recognition',
 	scripts=['er'],
 	summary='Toolkit for recognising named entities through structured labeling',
+	description='Toolkit for recognising named entities through structured labeling',
 	url='https://github.com/leondz/entity_recognition/',
 	version='1.0',
 	entry_points={'console_scripts':['run_tagger=run_tagger.py:main', 'train_tagger=train_tagger.py:main']},
